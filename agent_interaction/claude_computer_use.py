@@ -4,6 +4,14 @@ Connects to 4diac IDE running in Docker via VNC, performs tasks,
 and reports usability issues found during interaction.
 """
 
+import sys
+import io
+
+# Fix Windows cp1252 encoding issues — force UTF-8 for stdout/stderr
+if sys.platform == "win32":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
+
 import anthropic
 import base64
 import json
@@ -302,12 +310,12 @@ def run_task(task_key: str) -> dict:
 
     # Save JSON
     json_path = OUTPUT_DIR / f"{task_key}_results.json"
-    with open(json_path, "w") as f:
-        json.dump(result, f, indent=2)
+    with open(json_path, "w", encoding="utf-8") as f:
+        json.dump(result, f, indent=2, ensure_ascii=False)
 
     # Save markdown report
     md_path = OUTPUT_DIR / f"{task_key}_report.md"
-    with open(md_path, "w") as f:
+    with open(md_path, "w", encoding="utf-8") as f:
         f.write(f"# {task['name']} — Claude Computer Use Assessment\n\n")
         f.write(f"**Date:** {datetime.now().strftime('%Y-%m-%d %H:%M')}\n")
         f.write(f"**Model:** claude-sonnet-4-6\n")

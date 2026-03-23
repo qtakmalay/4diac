@@ -34,6 +34,8 @@ VIDEO_FILES = {
     "td": VIDEOS_DIR / "task_demo.mkv",
     "v1": VIDEOS_DIR / "intro_v1.mkv",
     "v2": VIDEOS_DIR / "intro_v2.webm",
+    "new_a": VIDEOS_DIR / "2026-03-19 21-25-12.mkv",  # New version video A (~12 min)
+    "new_b": VIDEOS_DIR / "2026-03-19 21-39-08.mkv",  # New version video B (~5 min)
 }
 
 
