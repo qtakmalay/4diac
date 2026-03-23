@@ -1,0 +1,13 @@
+services:
+  4diac-ide:
+    build: .
+    platform: linux/amd64
+    ports:
+      - "5900:5900"   # VNC
+      - "6080:6080"   # noVNC (web browser)
+    environment:
+      - DISPLAY=:1
+      - RESOLUTION=1920x1080x24
+    volumes:
+      - ./workspace:/root/workspace
+    shm_size: '2gb'

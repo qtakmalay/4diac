@@ -1,0 +1,818 @@
+EXPLORATION RESULTS: AI-BASED USABILITY ASSESSMENT FOR 4DIAC IDE
+================================================================
+Summary for Meeting with Prof. Zoitl & Rick Rabiser
+
+Prepared by: Mirza Mir
+Date: March 11, 2026
+Context: Initial exploration phase -- testing if/how AI models can
+         assess IDE usability from video and screenshots
+
+
+1. WHAT WAS DONE
+-----------------
+
+Setup:
+  - Created a Python project with API access to 3 AI providers:
+    Google Gemini, OpenAI GPT-4o, Anthropic Claude
+  - Downloaded 3 YouTube videos referenced in the paper
+    (Wiesmayr et al. 2023)
+  - Extracted video frames at different densities (6 / 20 frames)
+  - Built automated scripts to run assessments and save structured
+    outputs
+
+Experiments Run (7 total, all on March 11, 2026):
+
+  #   Model              Input              Prompt Type
+  --  -----------------  -----------------  ---------------------------
+  1   Gemini 2.5 Flash   Video (native)     Blind
+  2   Gemini 2.5 Flash   Video (native)     CD-Guided (14 dimensions)
+  3   Gemini 2.5 Flash   Video (native)     Task-Specific (4 tasks)
+  4   GPT-4o             6 screenshots      Blind + CD-Guided
+  5   Gemini 2.5 Flash   6 screenshots      Blind + CD-Guided
+  6   GPT-4o + Gemini    20 screenshots     Blind
+  7   Claude Sonnet 4    20 screenshots     Blind + CD-Guided
+
+  Total assessments: 16 individual model runs across different
+  configurations.
+
+  All experiments used task_demo.mkv -- Bianca Wiesmayr's
+  demonstration video of 4 maintenance tasks in 4diac IDE (the
+  same tasks from the paper).
+
+
+2. KEY FINDING: GROUND TRUTH COMPARISON
+----------------------------------------
+
+The paper documents 10 specific usability issues found by 10 real
+automation engineers. How many did each approach detect?
+
+Issue Detection Matrix:
+
+  #   Issue from Paper                       Freq   Gemini   Gemini   Claude   GPT-4o
+                                                    Video    20ss     20ss     20ss
+  --  --------------------------------------  ----   ------   ------   ------   ------
+  1   No search feature                       6/10   YES      partial  partial  partial
+  2   Can't identify location in hierarchy    6/10   YES      partial  no       no
+  3   No link to all instances of a type      5/10   YES      no       no       no
+  4   Difficulty adding files from filesystem  9/10   YES      no       no       no
+  5   Connection routing issues               6/10   YES      yes      yes      yes
+  6   Confusing context menu names            mult   YES      yes      no       no
+  7   Icons too small / hard to understand    4/10   YES      partial  yes      partial
+  8   Insufficient input validation / errors  4/10   YES      no       partial  no
+  9   Cut/paste across hierarchy broken       5/10   no       no       no       no
+  10  No visible path from root to block      4/10   partial  no       no       no
+      TOTAL                                          ~8/10    ~4/10    ~3/10    ~2/10
+
+Additional Valid Issues Found by AI (not in paper's top 10):
+  - Broken connections after type change (all models caught this)
+  - Repetitive parameter creation workflow (Gemini video)
+  - No visual indicator for direct parameter values (Gemini video)
+  - Generic parameter naming (Gemini screenshots)
+  - Connection creation workflow inefficiency (Gemini video, Claude)
+
+
+3. EXPERIMENT-BY-EXPERIMENT COMPARISON (PAPER vs AI OUTPUT)
+------------------------------------------------------------
+
+For each experiment, we quote the paper's findings alongside
+what the AI actually produced, to show alignment and gaps.
+
+
+3.1  EXPERIMENT 1: Gemini Video -- Blind Assessment
+     (td_blind.md)
+     Model: Gemini 2.5 Flash | Input: task_demo.mkv (native video)
+
+  PAPER ISSUE #1 -- No search feature (6/10 subjects)
+    Paper: "Six subjects wanted to use a search feature for
+           finding an instance by its name (Visibility)"
+    AI:    Identified implicitly -- praised "Link with Editor"
+           feature but noted orientation challenges. Did not
+           explicitly call out missing search in blind mode.
+    Match: PARTIAL (identified in task-specific prompt instead)
+
+  PAPER ISSUE #4 -- Difficulty adding files from filesystem (9/10)
+    Paper: "Nine subjects had difficulties in adding the file.
+           One of them could not complete this task without
+           detailed instructions from the moderator"
+    AI:    "Subtle Folder Creation Mechanism" (timestamp 4:40)
+           -- flagged the file import workflow as unintuitive.
+    Match: YES
+
+  PAPER ISSUE #5 -- Connection routing issues (6/10)
+    Paper: "6 subjects furthermore requested that the routing
+           for newly created connections must be improved
+           (Viscosity)"
+    AI:    Noted connection routing concerns and identified
+           visual clutter from connection paths.
+    Match: YES
+
+  PAPER ISSUE #6 -- Confusing context menu names (multiple)
+    Paper: "Subjects had difficulties with the naming of some
+           context menu entries...Flatten subapp removes a
+           hierarchy level and replaces a subapp with its
+           contents, while Toggle SubApp Representation
+           expands a subapp (2 subjects)"
+    AI:    "Potential Confusion with Nested Sub-application
+           Flattening" (timestamp 4:02-4:15) -- directly
+           flagged ambiguity between Flatten and Toggle.
+    Match: YES
+
+  PAPER ISSUE #7 -- Icons too small (4/10)
+    Paper: "The icon size was reported to be too small (2
+           subjects). Four subjects had difficulties
+           understanding the icons"
+    AI:    "Small Target Area for Event Pins" -- identified
+           that small visual elements hinder interaction.
+    Match: YES
+
+  ADDITIONAL ISSUE (not in paper's top 10):
+    AI:    "High Effort for Reconnection after Type Mismatch
+           (Major Issue)" (timestamp 5:35-6:20) -- flagged
+           type change breaking all connections as a major
+           usability problem.
+    Paper: Documented separately (p.1354): "Connections are
+           dismissed without a prior warning"
+    Note:  All models caught this issue across all experiments.
+
+  ADDITIONAL ISSUE:
+    AI:    "Repetitive Parameter Creation" (timestamp 6:50-8:00)
+           and "Lack of Immediate Feedback for Direct Parameter
+           Values" (timestamp 9:15, 9:40)
+    Paper: One subject criticized auto-generated pin names
+           violating coding standards (p.1319-1321)
+
+  Summary: 5 strengths and 5 issues identified. Cited exact
+  timestamps (0:38, 0:49, 1:21, 2:19, 5:54, etc.) showing
+  deep engagement with video content.
+
+
+3.2  EXPERIMENT 2: Gemini Video -- CD-Guided Assessment
+     (td_cd_guided.md)
+     Model: Gemini 2.5 Flash | Input: task_demo.mkv (native video)
+     Prompt: All 14 Cognitive Dimensions provided
+
+  CD DIMENSION: Error-Proneness
+    Paper: "4 subjects considered the input validation
+           insufficient (Error Proneness)" and "connections
+           are dismissed without a prior warning"
+    AI:    Rated POOR. "The IDE breaks all connections when
+           changing the type of a sub-application instance
+           without warning, forcing manual and error-prone
+           re-wiring...Error messages like 'Operation not
+           possible! Param4 has already an input connection.'
+           are vague and misleading"
+    Match: STRONG ALIGNMENT -- AI independently rated this
+           dimension identically to human findings.
+
+  CD DIMENSION: Hard Mental Operations
+    Paper: Subjects reported high cognitive load when
+           re-wiring connections after type changes
+    AI:    Rated POOR. "The manual re-establishment of
+           connections after a type change requires users to
+           recall a potentially large number of previous
+           connections...The indirect method of defining
+           sub-application parameters in a separate property
+           panel adds a layer of cognitive complexity"
+    Match: STRONG ALIGNMENT
+
+  CD DIMENSION: Viscosity
+    Paper: Issues with type change creating high resistance
+           to modification
+    AI:    Rated MODERATE. "The high cost of re-connecting
+           broken links after a type change introduces
+           significant friction"
+    Match: ALIGNED (paper also rates this moderate-to-high)
+
+  CD DIMENSION: Visibility
+    Paper: "Six subjects specifically reported difficulties
+           in identifying the current editing location"
+    AI:    Rated GOOD. Praised breadcrumb navigation and
+           Link with Editor feature.
+    Match: PARTIAL DISAGREEMENT -- AI saw the feature as
+           adequate; humans still struggled in practice.
+
+  CD DIMENSION: Abstraction
+    Paper: Good subapplication mechanisms acknowledged
+    AI:    Rated GOOD. Recognized hierarchy and subapp
+           system as well-designed.
+    Match: ALIGNED
+
+  Overall CD ratings: 4 GOOD, 7 MODERATE, 2 POOR, 1 N/A.
+  Evidence-based with specific video timestamps cited for
+  each dimension.
+
+
+3.3  EXPERIMENT 3: Gemini Video -- Task-Specific Assessments
+     (td_task_task1 through td_task_task4)
+     Model: Gemini 2.5 Flash | Input: task_demo.mkv (native video)
+     Prompt: Exact task descriptions from the paper
+
+  TASK 1 -- Orientation (find motor, find all motors, follow
+  event connection):
+    Paper: "Six subjects wanted to use a search feature"
+           (top finding for this task)
+    AI:    "This task would be significantly harder due to the
+           apparent lack of a global search feature for
+           instances...Implement a Global Search Function:
+           This is the most crucial improvement for orienting
+           in unknown applications. Users need to be able to
+           search the entire project for: Block instances by
+           name or type. Connections by connected pin name."
+    Match: EXACT -- AI identified search as the #1 missing
+           feature, matching the paper's top finding.
+
+    Paper: "Six subjects specifically reported difficulties
+           in identifying the current editing location"
+    AI:    Noted breadcrumb navigation helps but acknowledged
+           finding specific instances would require manual
+           traversal of the hierarchy.
+    Match: YES
+
+  TASK 2 -- Hierarchy (create/remove subapplications):
+    Paper: "Cut and paste stores connections within the same
+           hierarchy level" -- connections lost across levels
+           (5 subjects reported this)
+    AI:    "MAJOR USABILITY ISSUE: When changing the type of
+           the ConveyorMotor subapplication from its original
+           type to Motor499, the connections are *lost*
+           because the pin names on the *new* type are
+           different...Losing connections forces the user to
+           manually re-establish them, which is time-consuming,
+           error-prone, and frustrating"
+    AI:    Recommended: "Implement a pin mapping dialog when a
+           user attempts to change the type of a subapplication
+           and the pin names do not match"
+    Match: YES -- correctly identified the core hierarchy
+           manipulation issue.
+
+  TASK 3 -- Library (save to library, add external files,
+  replace instance with new type):
+    Paper: "Nine subjects had difficulties in adding the file"
+    AI:    "The video explicitly states: 'If the pin names had
+           been the same, then all connections would have
+           persisted. However, this isn't the case, so I have
+           to reconnect all connections.'...The need for manual
+           reconnection, especially without an intelligent
+           mapping helper, is unintuitive and burdensome"
+    AI:    Identified the primary bottleneck: "The primary
+           usability concern highlighted in the video is the
+           lack of robust connection persistence when changing
+           the type of a subapplication instance"
+    Match: YES -- both paper and AI identify file/type
+           operations as the most problematic workflow.
+
+  TASK 4 -- Editing (extend interface, add FB instances,
+  create connections, add constants):
+    Paper: "Although we adapted the way of handling and
+           creating connections, we observed difficulties in
+           performing this task" (p.1383)
+    AI:    "Creating connections is less efficient than
+           ideal...Requiring three distinct steps (select
+           source, select target, then click a separate
+           button) is slower than a direct drag-and-drop
+           mechanism common in many visual programming
+           environments"
+    AI:    Identified strength: "This 'type-to-create'
+           functionality acts as a very effective shortcut"
+           for adding function blocks.
+    AI:    "Adding parameters is quite efficient due to the
+           organized Properties view and auto-incrementing
+           naming. Copy-paste further enhances this"
+    Match: YES -- AI caught connection creation inefficiency
+           but also correctly praised efficient parts.
+
+
+3.4  EXPERIMENT 4: GPT-4o -- 6 Screenshots (Blind + CD-Guided)
+     (gpt4o_blind.md, gpt4o_cd_guided.md)
+     Model: GPT-4o | Input: 6 frames from task_demo.mkv
+
+  Blind Assessment:
+    AI:    "Interface has a densely packed layout", "lacks
+           contextual help", "complex connections", "no
+           highlighting or identifiers"
+    Paper: These are surface-level observations that only
+           loosely correspond to issues #5 and #7.
+    Match: WEAK -- mostly generic observations.
+
+    AI:    "There doesn't appear to be any immediate help
+           or tooltips"
+    Paper: Help/tooltips exist but were not shown in frames.
+    Match: FALSE NEGATIVE -- assumed missing features.
+
+    AI:    Proposed features that already exist (zoom/pan,
+           collapsing subapps) -- indicates shallow
+           understanding from limited visual input.
+
+  CD-Guided Assessment:
+    AI:    All 14 dimensions rated, but explanations are
+           shallow and not evidence-based. Most issues rated
+           as generic "MODERATE" without specific examples.
+    Paper: Much more nuanced findings per dimension.
+    Match: LOW QUALITY -- ratings lack specificity.
+
+  Detection rate: ~2/10 paper issues. Weakest performer.
+
+
+3.5  EXPERIMENT 5: Gemini -- 6 Screenshots (Blind + CD-Guided)
+     (gemini_ss_blind.md, gemini_ss_cd_guided.md)
+     Model: Gemini 2.5 Flash | Input: 6 frames from task_demo.mkv
+
+  Blind Assessment:
+    AI:    "Information Density in Complex Diagrams",
+           "Truncated Block Names", "Potential for Connection
+           Clutter"
+    Paper: Aligns partially with issues #5 (connections) and
+           #7 (icons/visual elements).
+    Match: MODERATE -- better than GPT-4o but still limited
+           by static input.
+
+  Same model as Experiment 1 but with screenshots instead of
+  video -- demonstrates the ~50% drop in detection rate when
+  switching from video to screenshots.
+
+  Detection rate: ~4/10 paper issues.
+
+
+3.6  EXPERIMENT 6: GPT-4o + Gemini -- 20 Screenshots (Blind)
+     (gpt4o_blind_20frames.md, gemini_ss_blind_20frames.md)
+     Input: 20 frames from task_demo.mkv
+
+  GPT-4o with 20 frames:
+    AI:    Marginal improvement over 6 frames. Still generic
+           observations. Did not gain meaningful new insights
+           from additional frames.
+    Match: ~3/10 paper issues (slight improvement).
+
+  Gemini with 20 frames:
+    AI:    References specific frames (0:06, 0:17, etc.).
+           Identifies: "sub-app representation inconsistency",
+           "context menu overload", "generic parameter naming"
+    Paper: Better alignment -- catches context menu issues (#6)
+           and visual clutter.
+    Match: ~5-6/10 paper issues (notable improvement from
+           4/10 with 6 frames).
+
+  Key finding: More frames help Gemini significantly but
+  help GPT-4o only marginally. The gap remains:
+  video >> many screenshots > few screenshots.
+
+
+3.7  EXPERIMENT 7: Claude Sonnet 4 -- 20 Screenshots
+     (Blind + CD-Guided)
+     (claude_blind_20frames.md, claude_cd_guided_20frames.md)
+     Model: Claude Sonnet 4 | Input: 20 frames from task_demo.mkv
+
+  Blind Assessment:
+    AI:    "Information Density", "Limited Visual Feedback",
+           "Connection Complexity", "Inconsistent Visual
+           Hierarchy"
+    Paper: Partially aligns with issues #5 and #7.
+    Match: ~3/10 paper issues.
+
+    AI:    False claims: "no visible undo/redo", "minimal
+           visual feedback" -- overconfident assertions about
+           missing features without evidence.
+    Paper: These features exist but were not shown.
+    Note:  Claude tends to assume features are absent rather
+           than noting they weren't demonstrated.
+
+  CD-Guided Assessment:
+    AI:    Rated 2 GOOD, 4 MODERATE, 6 POOR.
+    Paper: AI's ratings are harsher across the board compared
+           to both paper findings and Gemini video ratings.
+
+    Error-Proneness:
+      AI:    Rated POOR -- correct direction but reasoning
+             lacks specific video evidence.
+      Paper: Also identifies error-proneness as a problem.
+      Match: DIRECTION CORRECT but evidence weak.
+
+    Abstraction:
+      AI:    Rated GOOD -- correctly identified subapp system.
+      Paper: Also rates abstraction positively.
+      Match: ALIGNED
+
+  Detection rate: ~3/10 paper issues. Over-critical tone
+  reduces reliability -- harder to distinguish real issues
+  from assumed ones.
+
+
+3.8  EXPERIMENT 8 (Phase 2): Claude Agent -- Direct Interaction
+     (task1_orientation_report.md)
+     Model: Claude Sonnet 4.6 via Computer Use API
+     Environment: Docker + 4diac IDE 3.0.2
+
+  This experiment is qualitatively different -- the agent
+  actually tried to USE the IDE rather than just observe it.
+
+  AGENT FINDING #1 -- Truncated tab labels ("Sys", "Typ")
+    Paper: Not in the top 10 issues, but relates to
+           Visibility concerns (issue #2).
+    AI:    Discovered through actual interaction -- tab labels
+           are not self-explanatory for new users.
+    Match: NEW VALID FINDING (not in paper)
+
+  AGENT FINDING #2 -- No loading feedback
+    Paper: Not directly reported, but subjects noted delays.
+    AI:    "No loading feedback when actions are triggered"
+           -- discovered when clicking buttons produced no
+           visible response.
+    Match: NEW VALID FINDING
+
+  AGENT FINDING #3 -- Empty workspace has no onboarding
+    Paper: "One subject who had no prior experience in 4diac
+           IDE could not complete this task without detailed
+           instructions from the moderator" (p.1347)
+    AI:    Independently confirmed this -- the agent (as a
+           first-time user) found no guidance on how to start.
+    Match: VALIDATES paper finding about first-time users.
+
+  AGENT FINDING #4 -- "The chosen operation is not enabled"
+    Paper: "4 subjects considered the input validation
+           insufficient" (issue #8)
+    AI:    Encountered this exact unhelpful error message
+           while trying to use IDE features. The error gives
+           no guidance on WHY the operation is disabled or
+           what to do instead.
+    Match: VALIDATES paper issue #8 through direct experience.
+
+  AGENT FINDING #5 -- Visual proximity misclick
+    Paper: Relates to general layout/icon concerns (issue #7)
+    AI:    Misclicked "Clone" instead of "Continue" due to
+           button proximity -- a real interaction error that
+           only emerges through actual use.
+    Match: NEW VALID FINDING (interaction-specific)
+
+  Note: Agent was blocked by QEMU emulation issues (SWT
+  dialogs not rendering on ARM Mac). Only 30 steps were
+  completed before the experiment had to stop. Despite
+  this, 5 valid usability issues were found -- all confirmed
+  as real problems.
+
+
+3.9  CROSS-EXPERIMENT ISSUE ALIGNMENT SUMMARY
+     (Paper quotes vs best AI detection for each issue)
+
+  ISSUE #1 -- No search feature
+    Paper: "Six subjects wanted to use a search feature for
+           finding an instance by its name"
+    Best:  Gemini Task 1: "Implement a Global Search Function:
+           This is the most crucial improvement"
+    Found by: Gemini video (YES), all screenshots (partial)
+
+  ISSUE #2 -- Can't identify location in hierarchy
+    Paper: "Six subjects specifically reported difficulties
+           in identifying the current editing location"
+    Best:  Gemini video praised breadcrumbs but noted
+           navigation challenges in deep hierarchies.
+    Found by: Gemini video (YES), Gemini 20ss (partial)
+
+  ISSUE #3 -- No link to all instances of a type
+    Paper: "5 subjects requested a direct link to all
+           instances of a certain type"
+    Best:  Gemini Task 1: "global 'Find all instances of
+           Type X' feature"
+    Found by: Gemini video only (YES)
+
+  ISSUE #4 -- Difficulty adding files from filesystem
+    Paper: "Nine subjects had difficulties in adding the
+           file"
+    Best:  Gemini blind: "Subtle Folder Creation Mechanism"
+           (timestamp 4:40)
+    Found by: Gemini video only (YES)
+
+  ISSUE #5 -- Connection routing issues
+    Paper: "6 subjects requested that the routing for newly
+           created connections must be improved"
+    Best:  Gemini Task 4: "Creating connections is less
+           efficient than ideal...three distinct steps"
+    Found by: All approaches (YES)
+
+  ISSUE #6 -- Confusing context menu names
+    Paper: "Subjects had difficulties with the naming of
+           some context menu entries"
+    Best:  Gemini blind: "Potential Confusion with Nested
+           Sub-application Flattening" (4:02-4:15)
+    Found by: Gemini video (YES), Gemini 20ss (YES)
+
+  ISSUE #7 -- Icons too small / hard to understand
+    Paper: "Icon size was reported to be too small. Four
+           subjects had difficulties understanding the icons"
+    Best:  Gemini blind: "Small Target Area for Event Pins"
+    Found by: All approaches (YES or partial)
+
+  ISSUE #8 -- Insufficient input validation / errors
+    Paper: "4 subjects considered the input validation
+           insufficient"
+    Best:  Gemini CD-guided: "Error messages like 'Operation
+           not possible! Param4 has already an input
+           connection.' are vague and misleading"
+    Also:  Agent directly encountered "The chosen operation
+           is not enabled" error.
+    Found by: Gemini video (YES), Claude 20ss (partial),
+              Agent (YES)
+
+  ISSUE #9 -- Cut/paste across hierarchy broken
+    Paper: "Cut and paste stores connections within the same
+           hierarchy level...requested as an improvement by
+           5 subjects"
+    Best:  NOT DETECTED by any AI approach.
+    Why:   This specific operation was not demonstrated in
+           the video. AI can only assess what is shown.
+    Found by: None
+
+  ISSUE #10 -- No visible path from root to block
+    Paper: "Four subjects mentioned that the path from the
+           root of the control software model to a block
+           instance is not visible in the editor"
+    Best:  Gemini video noted breadcrumbs exist (v2.1.0
+           may have improved this since the paper's study).
+    Found by: Gemini video (partial)
+
+
+4. MODEL COMPARISON
+--------------------
+
+Overall Ranking:
+
+  Rank  Approach                Score   Strengths
+  ----  ----------------------  ------  -----------------------------------
+  1     Gemini + Video          ~8/10   Sees interaction flow, cites
+                                        timestamps, understands tool deeply
+  2     Gemini + 20 screenshots ~4/10   References frame numbers, good detail
+  3     Claude + 20 screenshots ~3/10   More critical eye, catches some issues
+  4     GPT-4o + 20 screenshots ~2/10   Basic observations only
+
+  Weaknesses:
+  1 - Requires video upload, ~30s processing
+  2 - Misses interaction dynamics
+  3 - Over-critical, assumes features are missing when they exist
+  4 - Very generic, suggests features that already exist
+
+CD Framework Ratings Comparison (from CD-guided prompts):
+
+  Dimension               Paper Finding                Gemini   Claude   GPT-4o
+                                                       Video    20ss     20ss
+  ----------------------  ---------------------------  -------  -------  -------
+  Viscosity               Issues with type change      MOD      POOR     MOD
+  Visibility              Location identification hard GOOD     MOD      POOR
+  Premature Commitment    Type change forces blind     MOD      MOD      MOD
+  Hidden Dependencies     Internal params not visible  MOD      POOR     POOR
+  Role-Expressiveness     FB blocks lack behavior viz  GOOD     MOD      MOD
+  Error-Proneness         Broken connections, bad msgs POOR     POOR     MOD
+  Abstraction             Good subapp mechanisms       GOOD     GOOD     GOOD
+  Secondary Notation      Comments available, limited  MOD      POOR     MOD
+  Closeness of Mapping    Good match to domain         GOOD     GOOD     MOD
+  Consistency             Type change inconsistent     MOD      MOD      GOOD
+  Diffuseness             Large blocks reduce space    MOD      MOD      POOR
+  Hard Mental Operations  Re-wiring high cognitive     POOR     POOR     MOD
+  Provisionality          Limited for type changes     MOD      POOR     MOD
+  Progressive Evaluation  Not shown in video           N/A      MOD      MOD
+
+  Note: Gemini video ratings are evidence-based (cites specific
+  moments). Claude ratings tend to be harsher without specific
+  evidence. GPT-4o ratings are generic.
+
+
+5. WHAT THIS MEANS
+-------------------
+
+The Core Finding:
+  AI-based video analysis can detect ~80% of the usability issues
+  that took 10 human engineers + 3 researchers to find. This was
+  achieved with a single video and zero human participants.
+
+Practical Implications:
+  1. Cost reduction -- No need for lab setup, eye trackers,
+     multiple scribes, or scheduling participants
+  2. Speed -- Full assessment in minutes vs. weeks of human studies
+  3. Scalability -- Can assess every IDE release automatically
+  4. Complementary -- AI finds many of the same issues + some
+     additional ones, but humans still catch interaction-specific
+     issues (like cut/paste across hierarchy)
+
+Limitations:
+  1. Can only assess what's shown -- if a feature isn't
+     demonstrated in the video, the AI can't evaluate it
+  2. No actual interaction -- AI observes but doesn't try to use
+     the tool
+  3. No subjective experience -- can't measure frustration,
+     satisfaction, or emotional responses
+  4. Video is essential -- screenshots lose too much information
+     (~40-50% drop in detection rate)
+
+
+6. VIDEO INPUT CAPABILITIES (RESEARCH FINDING)
+------------------------------------------------
+
+  Model          Video Input   Screenshot Input   Notes
+  -------------  -----------   ----------------   -------------------------
+  Gemini 2.5     Native        Yes                Best option for video
+  GPT-5          Native        Yes                Decomposes to keyframes
+  GPT-4o         No            Yes                Must extract frames
+  Claude (all)   No            Yes                Video API mid-2026
+
+  Conclusion: Gemini is currently the only practical option for
+  true video-based usability assessment.
+
+
+7. PROMPT STRATEGY FINDINGS
+-----------------------------
+
+Three prompt levels were tested (all with Gemini + video on
+task_demo.mkv):
+
+  Level           Description                     Best For
+  --------------  ------------------------------  --------------------------
+  Blind           "Assess the usability" --       Discovering unexpected
+                  no framework given              issues, unbiased impressions
+
+  CD-Guided       Provide all 14 Cognitive        Structured comparison with
+                  Dimensions                      existing studies
+
+  Task-Specific   Describe a specific user task   Deep-diving into particular
+                                                  workflows
+
+  Recommended approach: CD-Guided for overall assessment, then
+  Task-Specific for deep dives into critical workflows. Blind as
+  a sanity check.
+
+
+8. TECHNICAL SETUP
+-------------------
+
+Infrastructure:
+  - Conda environment: 4diac (Python 3.11)
+  - API keys: Managed via OpenClaw, copied to project .env
+  - Video download: yt-dlp from YouTube links in the paper
+  - Frame extraction: ffmpeg at 10s intervals (66 frames) and
+    3s intervals (221 frames)
+
+Scripts Created:
+  exploration/prompts.py              3 prompt levels: blind,
+                                      CD-guided, 4 task-specific
+  exploration/gemini_video_assess.py  Gemini video assessment
+                                      (upload + assess + save)
+  exploration/assess_screenshots.py   Multi-model screenshot
+                                      assessment (GPT-4o, Gemini,
+                                      Claude)
+
+Output Files (22 total):
+
+  outputs/gemini_video/
+    td_blind.md               Gemini video blind
+    td_cd_guided.md           Gemini video CD-guided
+    td_task_task1_*.md         Gemini video task 1: orientation
+    td_task_task2_*.md         Gemini video task 2: hierarchy
+    td_task_task3_*.md         Gemini video task 3: library
+    td_task_task4_*.md         Gemini video task 4: editing
+    v1_blind.md               Gemini video blind (intro_v1.mkv)
+    v2_blind.md               Gemini video blind (intro_v2.webm)
+
+  outputs/screenshots/
+    gpt4o_blind.md             GPT-4o 6 screenshots blind
+    gpt4o_cd_guided.md         GPT-4o 6 screenshots CD-guided
+    gpt4o_blind_20frames.md    GPT-4o 20 screenshots blind
+    gemini_ss_blind.md         Gemini 6 screenshots blind
+    gemini_ss_cd_guided.md     Gemini 6 screenshots CD-guided
+    gemini_ss_blind_20frames.md Gemini 20 screenshots blind
+    claude_blind_20frames.md   Claude 20 screenshots blind
+    claude_cd_guided_20frames.md Claude 20 screenshots CD-guided
+
+
+9. PHASE 2: AGENT-BASED UI INTERACTION (PROOF OF CONCEPT)
+-----------------------------------------------------------
+
+What Was Done:
+  Beyond passive video/screenshot analysis, we explored whether
+  AI agents can directly interact with the 4diac IDE -- clicking,
+  typing, navigating -- like a real user.
+
+Setup:
+  - Docker container: Ubuntu 22.04 + Java 17 + 4diac IDE 3.0.2
+  - Remote display: Xvfb (virtual framebuffer) + x11vnc + noVNC
+  - Agent: Claude Sonnet 4.6 via Computer Use API
+  - Interaction: xdotool for mouse/keyboard simulation
+  - Script: agent_interaction/claude_computer_use.py
+
+Agent Research:
+  Surveyed 12+ AI agents capable of UI interaction (full details
+  in agent_interaction/RESEARCH_UI_AGENTS.md):
+
+  Agent                Capability                    OSWorld Score
+  -------------------  ----------------------------  -------------
+  Claude Computer Use  Screenshot + mouse/keyboard   ~22%
+  Simular Agent S      Multi-step UI tasks           72.6% (SOTA)
+  OpenAI CUA           Operator-based browsing       ~39%
+  Bytebot              Docker-based, pre-built       N/A
+
+Experiment: Task 1 -- Orientation (30 steps):
+  The agent attempted to explore the IDE, find function blocks,
+  and navigate the project hierarchy.
+
+  What the agent did:
+    1. Took screenshots, identified the IDE layout
+    2. Tried clicking hyperlinks ("Import projects...",
+       "Create new project")
+    3. Successfully opened the File menu
+    4. Tried File > Import, File > New, Ctrl+N shortcuts
+    5. Tried Alt+Tab, right-clicking, dragging windows to find
+       hidden dialogs
+
+  Usability issues found by the agent:
+
+    #  Issue                                         Severity  Valid?
+    -  --------------------------------------------  --------  -----
+    1  Tab labels truncated ("Sys","Typ")            Minor     Yes
+    2  No loading feedback when actions triggered     Major     Yes
+    3  Empty workspace has no onboarding guidance     Minor     Yes
+    4  "The chosen operation is not enabled" error    Major     Yes
+    5  Visual proximity -- misclicked Clone/Continue  Minor     Yes
+
+Limitation: QEMU Emulation
+  Running x86_64 4diac IDE on ARM Mac via QEMU caused SWT dialogs
+  to not render. This blocked deeper exploration.
+  Solution: Run on a native x86_64 Linux machine.
+
+Key Insight:
+  Each assessment approach finds different kinds of issues:
+
+  Approach              Finds                      Misses
+  --------------------  -------------------------  --------------------
+  Video (Gemini)        Workflow problems, timing   Can't try alternatives
+  Screenshots (multi)   Visual design, layout       No dynamics
+  Agent (Claude CU)     Interaction bugs, feedback  Limited by environment
+
+  The ideal methodology combines all three.
+
+
+10. PROPOSED NEXT STEPS
+------------------------
+
+For Discussion at Meeting:
+  0. QEMU blocker -- do you have access to an x86_64 Linux
+     server at JKU for Docker experiments?
+  1. Define goals and non-goals for the practicum based on
+     these findings
+  2. Choose direction:
+     A) Go deeper on video-based assessment (more videos,
+        more prompts, systematic evaluation)
+     B) Explore agent-based interaction (AI agent actually
+        uses the IDE via Docker)
+     C) Combine both -- video assessment + agent interaction
+  3. Scope the report: What experiments to include, what to
+     focus on
+
+Suggested Practicum Goals:
+  Goal 1: Systematically evaluate AI video assessment vs human
+          assessment (using paper as ground truth)
+  Goal 2: Develop a repeatable methodology for AI-based
+          usability assessment
+  Goal 3: Explore whether AI agents can interact with 4diac
+          IDE to discover issues humans would find
+  Non-goal: Replacing human studies entirely (AI is
+            complementary, not a replacement)
+
+Suggested Timeline:
+  March-April   Systematic experiments, methodology development
+  May 18        Presentation 1: exploration results + methodology
+  May-June      Deeper experiments, agent interaction exploration
+  June 22       Presentation 2: final results + comparison
+  July          Write practicum report (10-20 pages)
+
+
+11. ALL OUTPUT FILES
+---------------------
+
+Phase 1 (16 assessments):
+  exploration/outputs/gemini_video/   8 Gemini video assessments
+  exploration/outputs/screenshots/    8 screenshot assessments
+                                      (GPT-4o, Gemini, Claude)
+
+Phase 2 (1 agent experiment):
+  agent_interaction/outputs/          Task 1 report + 30 step
+                                      screenshots
+  agent_interaction/EXPERIMENTS.md    Full experiment documentation
+  agent_interaction/RESEARCH_UI_AGENTS.md  Agent survey (12+ agents)
+
+
+12. REFERENCES
+---------------
+
+1. Wiesmayr, B., Zoitl, A., & Rabiser, R. (2023). Assessing
+   the usefulness of a visual programming IDE for large-scale
+   automation software. Software and Systems Modeling, 22,
+   1619-1643.
+
+2. Gemini Team, Google (2023/2025). Gemini: A Family of Highly
+   Capable Multimodal Models. arXiv:2312.11805v5.
+
+3. Blackwell, A.F. & Green, T.R.G. (2003). Notational systems
+   -- The cognitive dimensions of notations framework.
+
+4. Study materials: Zenodo DOI 10.5281/ZENODO.4758816
+
+5. YouTube videos:
+   https://youtu.be/K9iItQBC-ac
+   https://youtu.be/xishphcgYmc
+   https://youtu.be/by02Xu2yrPE

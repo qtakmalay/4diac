@@ -1,0 +1,40 @@
+# API Keys — NEVER commit
+exploration/.env
+.env
+
+# Large video files (download via yt-dlp instead)
+videos/*.mkv
+videos/*.webm
+videos/*.mp4
+
+# Extracted frames (regenerate with ffmpeg)
+exploration/frames/
+
+# Python
+__pycache__/
+*.pyc
+.Python
+*.egg-info/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker volumes
+agent_interaction/workspace/
+
+# Temporary screenshots
+agent_interaction/screen_*.png
+/tmp/
+
+# PDFs — too large, download separately
+*.pdf
+
+# Conda
+*.conda
