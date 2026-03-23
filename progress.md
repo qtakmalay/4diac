@@ -29,7 +29,7 @@ This is expensive, time-consuming, and hard to scale. The research question is: 
 1. **Wiesmayr, Zoitl, Rabiser (2023)** — "Assessing the usefulness of a visual programming IDE for large-scale automation software" — Software and Systems Modeling, 22:1619-1643, DOI: 10.1007/s10270-023-01084-7
    - Ground truth paper. Describes the methodology, metrics, and findings we're trying to replicate with AI.
 2. **Google Gemini Team (2023/2025)** — "Gemini: A Family of Highly Capable Multimodal Models" — arXiv:2312.11805v5
-   - Describes Gemini's multimodal capabilities (image, video, audio, text) relevant for our video-based assessment approach.
+   - Describes Gemini's multimodal capabilities (image, video, text) relevant for our video-based assessment approach.
 
 ---
 
@@ -78,8 +78,6 @@ This is expensive, time-consuming, and hard to scale. The research question is: 
 /Users/mirzamir/Desktop/4diac/
 ├── s10270-023-01084-7-1.pdf          # Ground truth paper
 ├── 2312.11805v5.pdf                   # Gemini paper
-├── Copy of Feb 24 at 3-14 PM.m4a     # Meeting recording
-├── Copy of Feb 24 at 3-14 PM.pdf     # Meeting transcript (better version)
 ├── progress.md                        # THIS FILE
 ├── videos/
 │   ├── intro_v1.mkv       # V1 — Intro to IEC 61499 & 4diac IDE (7min, v1.14.0)
@@ -419,7 +417,6 @@ The agent completed 30 steps and found real usability issues:
 | `progress.md` | Master progress document (this file) |
 | `SUMMARY_FOR_MEETING.md` | Meeting-ready summary (Phase 1 + 2) |
 | `FULL_SESSION_LOG.md` | Complete replication guide with all commands, challenges, solutions |
-| `dialog.txt` | Full conversation transcript (3149 lines) |
 | `agent_interaction/EXPERIMENTS.md` | Phase 2 experiment documentation with screenshots |
 | `agent_interaction/RESEARCH_UI_AGENTS.md` | Survey of 12+ UI interaction agents |
 

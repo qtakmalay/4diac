@@ -671,7 +671,7 @@ docker compose down
 
 The complete conversation between the student and Claude (3149 lines) is saved in `dialog.txt`. It includes:
 
-- Initial meeting transcript corrections
+- Meeting notes review and corrections
 - Questions about the meeting (goals, next steps, timeline)
 - Paper analysis and ground truth extraction
 - All experiment runs with live output
@@ -684,7 +684,7 @@ The complete conversation between the student and Claude (3149 lines) is saved i
 
 | Topic | Lines (approx) | Summary |
 |-------|:-----------:|---------|
-| Meeting transcript correction | 1-80 | Fixed transcription errors in meeting recording |
+| Meeting notes review | 1-80 | Reviewed and corrected meeting notes |
 | Meeting summary & questions | 80-100 | What was discussed, action items, next meeting date |
 | Paper analysis | 100-200 | Extracted methodology, metrics, tasks, CD framework, YouTube links |
 | API key setup | 200-250 | Found keys in OpenClaw, configured .env |

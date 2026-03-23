@@ -38,3 +38,11 @@ agent_interaction/screen_*.png
 
 # Conda
 *.conda
+
+# Private conversation logs
+dialog.txt
+
+# Meeting recordings
+*.m4a
+*.docx
+Copy of Feb*
